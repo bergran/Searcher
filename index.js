@@ -24,20 +24,19 @@
     const getImage = (searchedForText) => {
         const apiId = unsplashApi
         const root = unsplashRoot // here is the root route to unsplash
-        const unsplashRequest = new XMLHttpRequest()
-
-        unsplashRequest.open('get', `${root}/search/photos?page=1&query=${searchedForText}`);
-        unsplashRequest.onload = addImage
-        unsplashRequest.setRequestHeader('Authorization', `Client-ID ${apiId}`)
-
-        unsplashRequest.send()
+        $.ajax({
+            url: `${root}/search/photos?page=1&query=${searchedForText}`,
+            headers: {
+                'Authorization': `Client-ID ${apiId}`
+            }
+        }).done(addImage)
     }
 
-    function addImage (){
+    function addImage (images){
         let htmlContent = ''
-        const data = JSON.parse(this.responseText)
-        if (data && data.total > 0) {
-            const firstImage = data.results[0]
+
+        if (images && images.total > 0) {
+            const firstImage = images.results[0]
             htmlContent = `<figure>
             <img src="${firstImage.urls.regular}" alt="$searchedForText">
                 <figcaption>${searchedForText} by ${firstImage.user.name}</figcaption>
@@ -52,9 +51,8 @@
     }
 
     // Articles New york Times
-    function addArticles () {
+    function addArticles (data) {
         let htmlContent = ''
-        const data = JSON.parse(this.responseText)
         if (data && data.status === 'OK' && data.response.docs.length > 0) {
             const articles = data.response.docs
             let articlesHtml = articles.map((article) =>
@@ -81,9 +79,9 @@
     const getArticle = () => {
         const apiId = nytApi
         const root = nytRoot
-        const articleRequest = new XMLHttpRequest();
-        articleRequest.onload = addArticles;
-        articleRequest.open('GET', `${root}/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=${apiId}`);
-        articleRequest.send();
+
+        $.ajax({
+            url: `${root}/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=${apiId}`,
+            }).done(addArticles)
     }
 })()
