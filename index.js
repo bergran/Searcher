@@ -26,16 +26,20 @@
         const root = unsplashRoot // here is the root route to unsplash
         const unsplashRequest = new XMLHttpRequest()
 
-        unsplashRequest.open('get', `${root}/search/photos?page=1&query=${searchedForText}`);
-        unsplashRequest.onload = addImage
-        unsplashRequest.setRequestHeader('Authorization', `Client-ID ${apiId}`)
-
-        unsplashRequest.send()
+        fetch(`${root}/search/photos?page=1&query=${searchedForText}`,
+            {
+                headers: {
+                    'Authorization': `Client-ID ${apiId}`
+                }
+            }
+            )
+            .then((response) => response.json())
+            .then(addImage)
+            .catch((err) => err )
     }
 
-    function addImage (){
+    function addImage (data){
         let htmlContent = ''
-        const data = JSON.parse(this.responseText)
         if (data && data.total > 0) {
             const firstImage = data.results[0]
             htmlContent = `<figure>
@@ -52,9 +56,8 @@
     }
 
     // Articles New york Times
-    function addArticles () {
+    function addArticles (data) {
         let htmlContent = ''
-        const data = JSON.parse(this.responseText)
         if (data && data.status === 'OK' && data.response.docs.length > 0) {
             const articles = data.response.docs
             let articlesHtml = articles.map((article) =>
@@ -81,9 +84,13 @@
     const getArticle = () => {
         const apiId = nytApi
         const root = nytRoot
-        const articleRequest = new XMLHttpRequest();
-        articleRequest.onload = addArticles;
-        articleRequest.open('GET', `${root}/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=${apiId}`);
-        articleRequest.send();
+        // const articleRequest = new XMLHttpRequest();
+        // articleRequest.onload = addArticles;
+        // articleRequest.open('GET', `${root}/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=${apiId}`);
+        // articleRequest.send();
+        fetch(`${root}/svc/search/v2/articlesearch.json?q=${searchedForText}&api-key=${apiId}`)
+            .then((response) => response.json())
+            .then(addArticles)
+            .catch((err) => err)
     }
 })()
